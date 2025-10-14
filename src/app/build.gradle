@@ -1,15 +1,36 @@
+
 plugins {
     id 'com.android.application'
 }
 android {
+
+    namespace 'zixing.bluetooth.unlocker'
     compileSdk 31
 
+    buildFeatures {
+        buildConfig true
+    }
+
+    applicationVariants.all {
+        variant ->
+            variant.outputs.all { output ->
+                def appName = "mibluetoothunlocker" // 获取应用名称
+                def versionName = variant.versionName // 获取版本名称
+                //def versionCode = variant.versionCode // 获取版本号
+                def timestamp = new Date().format("yyMMdd_HHmm") // 获取当前时间的格式化字符串
+                def buildType = variant.buildType.name // 获取构建类型名称
+                // 生成 APK 文件名
+                def newName = "${appName}_v${versionName}_${buildType}_${timestamp}.apk"
+                outputFileName = newName
+            }
+    }
     defaultConfig {
         applicationId "zixing.bluetooth.unlocker"
-        minSdk 21
+        minSdk 29
+        //noinspection ExpiredTargetSdkVersion
         targetSdk 31
-        versionCode 42
-        versionName '4.2'
+        versionCode 50
+        versionName '5.0'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -17,13 +38,13 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            shrinkResources true
+//            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
+        sourceCompatibility = '11'
+        targetCompatibility = '11'
     }
 }
 

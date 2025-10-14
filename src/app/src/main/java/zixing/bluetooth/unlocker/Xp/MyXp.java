@@ -322,12 +322,12 @@ public class MyXp implements IXposedHookLoadPackage {
 
                         //context  = (Context)(param.args[0]);
 
-                        Field mBleListenerField = MiuiBleUnlockHelper.getDeclaredField("mBleListener");
+                        Field mBleListenerField = getFieldContainingName(MiuiBleUnlockHelper,"bleListener");
                         mBleListenerField.setAccessible(true);
                         mBleListener = mBleListenerField.get(param.thisObject);
 
                         classLoader = loadPackageParam.classLoader;
-                        Field mLockPatternUtilsField = MiuiBleUnlockHelper.getDeclaredField("mLockPatternUtils");
+                        Field mLockPatternUtilsField = getFieldContainingName(MiuiBleUnlockHelper,"lockPatternUtils");
                         mLockPatternUtilsField.setAccessible(true);
                         mLockPatternUtils = mLockPatternUtilsField.get(param.thisObject);
 
@@ -402,6 +402,26 @@ public class MyXp implements IXposedHookLoadPackage {
             myLog("com.android.systemui leave");
         }
     }
+
+
+    public static Field getFieldContainingName(Class clz , String fieldName) {
+        try {
+            Field[] fields = clz.getDeclaredFields();
+            String lowerFieldName = fieldName.toLowerCase();
+
+            for (Field field : fields) {
+                if (field.getName().toLowerCase().contains(lowerFieldName)) {
+                    field.setAccessible(true);
+                    return field;
+                }
+            }
+            throw new NoSuchFieldException("No field containing '" + fieldName + "' found");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get field: " + fieldName, e);
+        }
+    }
+
+
 
     public static  Class systemuiR = null;
     static int miui_keyguard_ble_unlock_succeed_msg;
