@@ -11,8 +11,6 @@ import android.util.Log;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 import zixing.bluetooth.unlocker.Xp.MyXp;
 import zixing.bluetooth.unlocker.activity.MainActivity;
 
@@ -20,10 +18,11 @@ public class BluetoothHelper {
 
     private static void myLog(String msg) {
         try {
-            Log.i("hookhelper",msg);
             if(MainActivity.self==null)
             {
-                XposedBridge.log(msg);
+                MyXp.myLog(msg);
+            } else {
+                Log.i("hookhelper",msg);
             }
         }
         catch (Exception ex)
@@ -48,11 +47,11 @@ public class BluetoothHelper {
                 return false;
             }
 
-            final Class BluetoothControllerImplClass = XposedHelpers.findClass("com.android.systemui.statusbar.policy.BluetoothControllerImpl", classLoader);
+            final Class BluetoothControllerImplClass = ReflectUtil.findClass("com.android.systemui.statusbar.policy.BluetoothControllerImpl", classLoader);
 
-            final Class CachedBluetoothDeviceClass = XposedHelpers.findClass("com.android.settingslib.bluetooth.CachedBluetoothDevice", classLoader);
+            final Class CachedBluetoothDeviceClass = ReflectUtil.findClass("com.android.settingslib.bluetooth.CachedBluetoothDevice", classLoader);
 
-            ArrayList ConnectedDevices = (ArrayList) (XposedHelpers.callMethod(BluetoothControllerImplInstance, "getConnectedDevices"));
+            ArrayList ConnectedDevices = (ArrayList) (ReflectUtil.callMethod(BluetoothControllerImplInstance, "getConnectedDevices"));
             if (ConnectedDevices == null || ConnectedDevices.size() == 0) {
                 myLog("没有连接的设备");
                 return false;
@@ -202,4 +201,15 @@ public class BluetoothHelper {
         }
     }
     static  BluetoothGatt bluetoothGattInstance = null;
+
+    public static void releaseGatt() {
+        try {
+            if (bluetoothGattInstance != null) {
+                bluetoothGattInstance.close();
+            }
+        } catch (Throwable ignored) {
+        } finally {
+            bluetoothGattInstance = null;
+        }
+    }
 }
